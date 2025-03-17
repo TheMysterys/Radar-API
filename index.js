@@ -10,7 +10,7 @@ import {
 import cron from "node-cron";
 
 const app = express();
-const port = 8080;
+const port = 8879;
 
 app.use(express.json());
 
