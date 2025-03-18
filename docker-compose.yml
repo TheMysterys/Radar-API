@@ -6,4 +6,4 @@ services:
     container_name: api-fishymap
     command: npm start
     ports:
-      - 127.0.0.1:8879:8879
+      - 0.0.0.0:8879:8879
