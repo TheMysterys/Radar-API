@@ -5,6 +5,9 @@ export const fishingSpots = {
 	tropical_1: new Map(),
 	tropical_2: new Map(),
 	tropical_3: new Map(),
+	barren_1: new Map(),
+	barren_2: new Map(),
+	barren_3: new Map(),
 };
 
 // Shared Secret code
@@ -49,36 +52,6 @@ export function addFishingSpot(island, cords, uuid, username, shareUser, perks) 
 
 	// Spot already exists
 	return false;
-	// Below is old code
-	// If player is already in the fishing spot, return.
-	if (fishingSpot.players.some((player) => player.uuid === uuid)) {
-		return;
-	}
-	fishingSpot.players.push({ uuid, shareUser });
-}
-
-export function removeFishingSpot(island, cords, uuid) {
-	if (fishingSpots[island] === undefined) {
-		return;
-	}
-	const fishingSpot = fishingSpots[island].get(cords);
-
-	if (fishingSpot === undefined) {
-		return;
-	}
-	// Remove player from fishing spot. If no players left, remove the fishing spot.
-	const index = fishingSpot.players.findIndex(
-		(player) => player.uuid === uuid
-	);
-	if (index === -1) {
-		return;
-	}
-	fishingSpot.players.splice(index, 1);
-	if (fishingSpot.players.length === 0) {
-		fishingSpots[island].delete(cords);
-	}
-
-	console.log(fishingSpots);
 }
 
 export function resetFishingSpots() {
@@ -88,9 +61,6 @@ export function resetFishingSpots() {
 }
 
 export function getFishingSpots() {
-	// Return a copy of the fishing spots.
-	// If player has shareUser set to false, set the uuid to null.
-
 	const spots = {};
 
 	for (const [key, value] of Object.entries(fishingSpots)) {
