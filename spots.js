@@ -28,7 +28,48 @@ export function unregisterSecret(uuid) {
 	sharedSecrets.delete(uuid);
 }
 
-export function addFishingSpot(island, cords, uuid, username, shareUser, perks) {
+const lureMappings = {
+	elusive: "strong",
+	wayfinder: "wise",
+	pearl: "glimmering",
+	treasure: "greedy",
+	spirit: "lucky",
+};
+
+function calculatePerks(perks) {
+	const returnedPerks = {};
+
+	for (const perk of perks) {
+		if (perk.toLowerCase().includes("hook")) {
+			if (returnedPerks.hooks == undefined) returnedPerks.hooks = {};
+			const values = perk.toLowerCase().split(" ");
+			returnedPerks.hooks[values[1]] = values[0].replaceAll(/[+%]/g, "");
+		} else if (perk.toLowerCase().includes("magnet")) {
+			if (returnedPerks.magnets == undefined) returnedPerks.magnets = {};
+			const values = perk.toLowerCase().split(" ");
+			returnedPerks.magnets[values[1]] = values[0].replaceAll(
+				/[+%]/g,
+				""
+			);
+		} else {
+			if (returnedPerks.lures == undefined) returnedPerks.lures = {};
+			const values = perk.toLowerCase().split(" ");
+			values[1] = lureMappings[values[1]];
+			returnedPerks.lures[values[1]] = values[0].replaceAll(/[+%]/g, "");
+		}
+	}
+
+	return returnedPerks;
+}
+
+export function addFishingSpot(
+	island,
+	cords,
+	uuid,
+	username,
+	shareUser,
+	perks
+) {
 	if (fishingSpots[island] === undefined) {
 		return;
 	}
@@ -36,27 +77,39 @@ export function addFishingSpot(island, cords, uuid, username, shareUser, perks) 
 
 	if (fishingSpot === undefined) {
 		console.log("Adding new fishing spot");
-		
+
 		let foundBy = username;
 
 		if (!shareUser || shareUser.toString().toLowerCase() === "false") {
-			foundBy = null
+			foundBy = null;
 		}
-		
+
+		const perkData = calculatePerks(perks);
+		const color = perks[0].split(" ")[1].toLowerCase();
+
 		fishingSpots[island].set(cords, {
 			foundBy,
-			perks,
+			color,
+			perks: perkData,
 		});
-		return true;
+		return {
+			island,
+			spot: {
+				cords,
+				foundBy,
+				color,
+				perks: perkData,
+			},
+		};
 	}
 
 	// Spot already exists
-	return false;
+	return null;
 }
 
 export function resetFishingSpots() {
 	for (const island in fishingSpots) {
-		fishingSpots[island].clear()
+		fishingSpots[island].clear();
 	}
 }
 
@@ -64,15 +117,12 @@ export function getFishingSpots() {
 	const spots = {};
 
 	for (const [key, value] of Object.entries(fishingSpots)) {
-		spots[key] = Array.from(value.entries()).map(
-			([cords, data]) => {
-				
-				return {
-					cords,
-					...data
-				};
-			}
-		);
+		spots[key] = Array.from(value.entries()).map(([cords, data]) => {
+			return {
+				cords,
+				...data,
+			};
+		});
 	}
 
 	return spots;

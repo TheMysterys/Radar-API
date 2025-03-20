@@ -1,10 +1,6 @@
 import express from "express";
 import { createChannel, createSession } from "better-sse";
-import {
-	addFishingSpot,
-	getFishingSpots,
-	resetFishingSpots,
-} from "./spots.js";
+import { addFishingSpot, getFishingSpots, resetFishingSpots } from "./spots.js";
 import cron from "node-cron";
 
 const app = express();
@@ -35,8 +31,8 @@ app.post("/spots", async (req, res) => {
 		body.perks
 	);
 
-	if (added) {
-		channel.broadcast(getFishingSpots());
+	if (added != null) {
+		channel.broadcast(added);
 	}
 
 	res.send("OK");
@@ -48,5 +44,5 @@ app.listen(port, () => {
 
 cron.schedule("0 * * * *", () => {
 	resetFishingSpots();
-	channel.broadcast(getFishingSpots());
+	channel.broadcast(getFishingSpots(),"CLEAR");
 });
