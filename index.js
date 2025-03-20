@@ -32,6 +32,7 @@ app.post("/spots", async (req, res) => {
 	);
 
 	if (added != null) {
+		res.status(201)
 		channel.broadcast(added);
 	}
 
