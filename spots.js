@@ -76,8 +76,6 @@ export function addFishingSpot(
 	const fishingSpot = fishingSpots[island].get(cords);
 
 	if (fishingSpot === undefined) {
-		console.log("Adding new fishing spot");
-
 		let foundBy = username;
 
 		if (!shareUser || shareUser.toString().toLowerCase() === "false") {
