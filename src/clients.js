@@ -12,9 +12,9 @@ export function removeClient(secret) {
 
 export function checkClient(secret, uuid) {
 	const client = clients.get(secret);
-
+	
 	if (client == null) return false;
-	if (client != uuid) return false;
+	if (client.uuid != uuid) return false;
 	return true;
 }
 
