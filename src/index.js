@@ -7,12 +7,19 @@ import {
 	unregisterSecret,
 } from "./spots.js";
 import cron from "node-cron";
-import { addClient, checkClient, clearClients, getClients } from "./clients.js";
+import { addClient, checkClient, clearClients } from "./clients.js";
+
 
 const app = express();
-const port = 8879;
+const port = process.env.PORT;
 
+app.disable("x-powered-by");
 app.use(express.json());
+
+app.use(function (req, res, next) {
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	next();
+});
 
 const channel = createChannel();
 
@@ -21,7 +28,6 @@ app.get("/", (req, res) => {
 });
 
 app.get("/spots", async (req, res) => {
-	res.appendHeader("Access-Control-Allow-Origin", "*");
 	const session = await createSession(req, res);
 
 	channel.register(session);
@@ -37,7 +43,6 @@ app.post("/spots", async (req, res) => {
 		body.island == undefined ||
 		body.cords == undefined ||
 		body.uuid == undefined ||
-		body.username == undefined ||
 		body.shareUser == undefined ||
 		body.perks == undefined
 	) {
@@ -48,18 +53,26 @@ app.post("/spots", async (req, res) => {
 		return res.sendStatus(401);
 	}
 
-	const added = addFishingSpot(
+	const result = await addFishingSpot(
 		body.island,
 		body.cords,
 		body.uuid,
-		body.username,
 		body.shareUser,
 		body.perks
 	);
 
-	if (added != null) {
+	if (result.added) {
 		res.status(201);
-		channel.broadcast(added);
+		channel.broadcast(result.data);
+	}
+
+	if (result.exists) {
+		res.status(200)
+	}
+
+	if (result.error) {
+		res.status(400)
+		return res.send(result.error)
 	}
 
 	res.send("OK");

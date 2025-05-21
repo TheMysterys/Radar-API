@@ -44,7 +44,7 @@ export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
 	if (fishingSpot === undefined) {
 		const perkData = calculatePerks(perks);
 		if (perkData === null) {
-			console.log(
+			console.warn(
 				`UUID: ${uuid} tried sending false perk data. (${perks})`
 			);
 			return { added: false, error: "False perk data was sent" };
