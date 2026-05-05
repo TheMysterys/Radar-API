@@ -58,7 +58,7 @@ app.post("/spots", async (req, res) => {
 		body.uuid,
 		body.shareUser,
 		body.perks,
-		body.stock,
+		body.stock ?? "DEPLETED",
 	);
 
 	if (result.added) {
