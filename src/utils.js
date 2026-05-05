@@ -96,7 +96,7 @@ const stockLevels = {
 	MEDIUM: 2,
 	HIGH: 3,
 	VERY_HIGH: 4,
-	PLENTIFU: 5,
+	PLENTIFUL: 5,
 };
 
 export function compareStock(original, newValue) {
