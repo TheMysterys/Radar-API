@@ -9,7 +9,6 @@ import {
 import cron from "node-cron";
 import { addClient, checkClient, clearClients } from "./clients.js";
 
-
 const app = express();
 const port = process.env.PORT;
 
@@ -58,7 +57,8 @@ app.post("/spots", async (req, res) => {
 		body.cords,
 		body.uuid,
 		body.shareUser,
-		body.perks
+		body.perks,
+		body.stock,
 	);
 
 	if (result.added) {
@@ -67,12 +67,17 @@ app.post("/spots", async (req, res) => {
 	}
 
 	if (result.exists) {
-		res.status(200)
+		res.status(200);
+	}
+
+	if (result.updated) {
+		res.status(204);
+		channel.broadcast(result.data);
 	}
 
 	if (result.error) {
-		res.status(400)
-		return res.send(result.error)
+		res.status(400);
+		return res.send(result.error);
 	}
 
 	res.send("OK");

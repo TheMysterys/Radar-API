@@ -1,5 +1,5 @@
 import mongoClient from "./connection.js";
-import { calculatePerks, createProfile } from "./utils.js";
+import { calculatePerks, compareStock, createProfile } from "./utils.js";
 
 export const fishingSpots = {
 	temperate_1: new Map(),
@@ -14,7 +14,7 @@ export const fishingSpots = {
 };
 
 // Database Connection
-const dbName = process.env.DEV === "true" ? "radar-dev" : "radar"
+const dbName = process.env.DEV === "true" ? "radar-dev" : "radar";
 const db = mongoClient.db(dbName);
 
 // Shared Secret code
@@ -35,17 +35,33 @@ export function unregisterSecret(uuid) {
 	sharedSecrets.delete(uuid);
 }
 
-export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
+export async function addFishingSpot(
+	island,
+	cords,
+	uuid,
+	shareUser,
+	perks,
+	stock,
+) {
 	if (fishingSpots[island] === undefined) {
 		return { added: false, error: "Unknown island" };
 	}
 	const fishingSpot = fishingSpots[island].get(cords);
 
+	if (fishingSpot && compareStock(fishingSpot.stock, stock)) {
+		fishingSpot.stock = stock;
+		fishingSpots[island].set(cords, fishingSpot);
+		return {
+			updated: true,
+			data: { island, spot: { ...fishingSpot, cords } },
+		};
+	}
+
 	if (fishingSpot === undefined) {
 		const perkData = calculatePerks(perks);
 		if (perkData === null) {
 			console.warn(
-				`UUID: ${uuid} tried sending false perk data. (${perks})`
+				`UUID: ${uuid} tried sending false perk data. (${perks})`,
 			);
 			return { added: false, error: "False perk data was sent" };
 		}
@@ -62,7 +78,7 @@ export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
 					headers: {
 						"User-Agent": "Radar(radar.themysterys.com)",
 					},
-				}
+				},
 			);
 
 			if (res.status != 200) {
@@ -83,6 +99,7 @@ export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
 			foundBy,
 			color,
 			perks: perkData,
+			stock,
 		});
 
 		const updateObject = {
@@ -102,7 +119,7 @@ export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
 			{ uuid },
 			{
 				$inc: updateObject,
-			}
+			},
 		);
 
 		if (result.modifiedCount == 0) {
@@ -134,6 +151,7 @@ export async function addFishingSpot(island, cords, uuid, shareUser, perks) {
 					foundBy,
 					color,
 					perks: perkData,
+					stock,
 				},
 			},
 		};

@@ -89,25 +89,16 @@ export function calculatePerks(perks) {
 
 	return returnedPerks;
 }
-/* for (const perk of perks) {
-		if (perk.toLowerCase().includes("hook")) {
-			if (returnedPerks.hooks == undefined) returnedPerks.hooks = {};
-			const values = perk.toLowerCase().split(" ");
-			returnedPerks.hooks[values[1]] = values[0].replaceAll(/[+%]/g, "");
-		} else if (perk.toLowerCase().includes("magnet")) {
-			if (returnedPerks.magnets == undefined) returnedPerks.magnets = {};
-			const values = perk.toLowerCase().split(" ");
-			returnedPerks.magnets[values[1]] = values[0].replaceAll(
-				/[+%]/g,
-				""
-			);
-		} else {
-			if (returnedPerks.lures == undefined) returnedPerks.lures = {};
-			const values = perk.toLowerCase().split(" ");
-			values[1] = lureMappings[values[1]];
-			returnedPerks.lures[values[1]] = values[0].replaceAll(/[+%]/g, "");
-		}
-	}
 
-	return returnedPerks;
-} */
+const stockLevels = {
+	DEPLETED: 0,
+	LOW: 1,
+	MEDIUM: 2,
+	HIGH: 3,
+	VERY_HIGH: 4,
+	PLENTIFU: 5,
+};
+
+export function compareStock(original, newValue) {
+	return stockLevels[original] < stockLevels[newValue];
+}
